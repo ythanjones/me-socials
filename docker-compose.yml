@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: postiz_app
+    restart: always
+    env_file: .env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - postiz
+
+  db:
+    container_name: postiz_db
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTG-ES_USER=postiz-user
+      - POSTGRES_PASSWORD=postiz-password
+      - POSTGRES_DB=postiz-db-local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - postiz
+
+  redis:
+    container_name: postiz_redis
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - postiz
+
+networks:
+  postiz:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -25,7 +25,24 @@ export async function middleware(request: NextRequest) {
           request.headers.get('accept-language')
       );
 
-  const topResponse = NextResponse.next();
+    const topResponse = NextResponse.next();
+    const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.stripe.com https://*.sentry.io https://*.gitroom.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+`;
+    topResponse.headers.set(
+        'Content-Security-Policy',
+        // Replace newline characters and spaces
+        cspHeader.replace(/\s{2,}/g, ' ').trim()
+    );
 
   if (lng) {
     topResponse.headers.set(cookieName, lng);
